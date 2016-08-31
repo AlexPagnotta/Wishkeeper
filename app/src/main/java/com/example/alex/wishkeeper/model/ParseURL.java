@@ -36,7 +36,7 @@ public class ParseURL extends AsyncTask<String, Void, ArrayList> {
         product = new ArrayList();
 
         try {
-            url = Jsoup.connect(strings[0]).get();
+            url = Jsoup.connect(strings[0]).userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:48.0) Gecko/20100101 Firefox/48.0").get();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -59,15 +59,13 @@ public class ParseURL extends AsyncTask<String, Void, ArrayList> {
 
     private void cleanAmazonData(){
 
-        titleSelector = "#productTitle";
         imgSelector = "#landingImage";
         priceSelector = "#priceblock_ourprice";
 
-        Element titleElement = url.select(titleSelector).first();
         Element imgElement = url.select(imgSelector).first();
         Element priceElement = url.select(priceSelector).first();
 
-        title=titleElement.text();
+        title=url.title();
 
         //Clean Image
         ArrayList links = new ArrayList();
@@ -98,10 +96,43 @@ public class ParseURL extends AsyncTask<String, Void, ArrayList> {
 
     private void cleanEbayData(){
 
+        imgSelector = "#icImg";
+        priceSelector = ".notranslate";
+
+        Element imgElement = url.select(imgSelector).first();
+        Element priceElement = url.select(priceSelector).first();
+
+        title= url.title();
+
+        img= imgElement.attr("src"); //TODO: Find an image with a better resolution
+
+        price= priceElement.attr("content");
+
+        product.add(title);
+        product.add(price);
+        product.add(img);
+
     }
 
     private void cleanZalandoData(){
 
+        imgSelector = "[name=twitter:image]";
+        priceSelector = "#articlePrice";
+
+        Element imgElement = url.select(imgSelector).first();
+        Element priceElement = url.select(priceSelector).first();
+
+        title= url.title();
+
+        img= imgElement.attr("content");
+
+        //Clean Price
+        String split[] = priceElement.text().split(" ");
+        price = split[1].replace(",",".");
+
+        product.add(title);
+        product.add(price);
+        product.add(img);
 
     }
 
