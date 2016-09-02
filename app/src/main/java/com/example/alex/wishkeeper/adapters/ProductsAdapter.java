@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.example.alex.wishkeeper.R;
+import com.example.alex.wishkeeper.model.ParseURL;
 import com.example.alex.wishkeeper.model.Product;
 import com.example.alex.wishkeeper.realm.RealmController;
 import com.squareup.picasso.Picasso;
@@ -46,7 +47,7 @@ public class ProductsAdapter extends RealmRecyclerViewAdapter<Product> {
         final CardViewHolder holder = (CardViewHolder) viewHolder;
 
         holder.textProductsTitle.setText(product.getTitle());
-        holder.textProductsPrice.setText(String.valueOf(product.getPrice()));
+        holder.textProductsPrice.setText(String.valueOf(product.getPrice()+" €"));
 
         if (product.getImageUrl() != null) {
             Picasso.with(context)
@@ -78,11 +79,12 @@ public class ProductsAdapter extends RealmRecyclerViewAdapter<Product> {
             public void onClick(View v) {
 
                 inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View content = inflater.inflate(R.layout.edit_product, null);
+                final View content = inflater.inflate(R.layout.edit_product, null);
                 final EditText editProductTitle = (EditText) content.findViewById(R.id.edit_product_title);
                 final EditText editProductPrice = (EditText) content.findViewById(R.id.edit_product_price);
                 final EditText editProductImage = (EditText) content.findViewById(R.id.edit_product_image);
                 final EditText editProductUrl = (EditText) content.findViewById(R.id.edit_product_url);
+                final Button buttonProductAnalyzeUrl = (Button) content.findViewById(R.id.button_product_analyze_url);
 
                 editProductTitle.setText(product.getTitle());
                 editProductPrice.setText(String.valueOf(product.getPrice()));
@@ -118,6 +120,17 @@ public class ProductsAdapter extends RealmRecyclerViewAdapter<Product> {
                         });
                 AlertDialog dialog = builder.create();
                 dialog.show();
+
+                //Parse data from the url
+                buttonProductAnalyzeUrl.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        String url=editProductUrl.getText().toString();
+                        ( new ParseURL(content) ).execute(new String[]{url});
+
+                    }
+                });
 
 
             }
@@ -164,10 +177,15 @@ public class ProductsAdapter extends RealmRecyclerViewAdapter<Product> {
             card = (CardView) itemView.findViewById(R.id.card_products);
             textProductsTitle = (TextView) itemView.findViewById(R.id.text_products_title);
             textProductsPrice = (TextView) itemView.findViewById(R.id.text_products_price);
-            imageProductsBackground = (ImageView) itemView.findViewById(R.id.image_produts_background);
+            imageProductsBackground = (ImageView) itemView.findViewById(R.id.image_products_background);
             buttonProductEdit= (Button) itemView.findViewById(R.id.button_product_edit);
             buttonProductRemove= (Button) itemView.findViewById(R.id.button_product_remove);
             buttonProductOpen= (Button) itemView.findViewById(R.id.button_product_open);
+
+            //TODO: Move these buttons in another activity
+            buttonProductEdit.setVisibility(View.GONE);
+            buttonProductRemove.setVisibility(View.GONE);
+            buttonProductOpen.setVisibility(View.GONE);
         }
     }
 }

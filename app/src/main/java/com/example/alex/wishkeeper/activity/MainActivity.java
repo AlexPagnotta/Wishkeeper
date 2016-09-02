@@ -1,17 +1,19 @@
 package com.example.alex.wishkeeper.activity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -21,22 +23,41 @@ import com.example.alex.wishkeeper.adapters.RealmProductsAdapter;
 import com.example.alex.wishkeeper.model.ParseURL;
 import com.example.alex.wishkeeper.model.Product;
 import com.example.alex.wishkeeper.realm.RealmController;
+import com.mobsandgeeks.saripaar.ValidationError;
+import com.mobsandgeeks.saripaar.Validator;
+import com.mobsandgeeks.saripaar.annotation.NotEmpty;
+import com.mobsandgeeks.saripaar.annotation.Url;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Validator.ValidationListener {
 
     private Toolbar toolbar;
     private RecyclerView recyclerView;
-    private LinearLayoutManager layoutManager;
+    private StaggeredGridLayoutManager layoutManager;
     private ProductsAdapter adapter;
     private Realm realm;
     private FloatingActionButton fab;
     private LayoutInflater inflater;
+    private AlertDialog dialog;
+    private Validator validator;
+
+    @NotEmpty
+     EditText editProductTitle;
+    @NotEmpty
+     EditText editProductPrice ;
+    @Url
+    @NotEmpty
+     EditText editProductImage;
+    @Url
+    @NotEmpty
+     EditText editProductUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,13 +80,15 @@ public class MainActivity extends AppCompatActivity {
         //Setup Toolbar
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        toolbar.setNavigationIcon(R.drawable.ic_menu);
 
         //Setup Fab
         fab= (FloatingActionButton) findViewById(R.id.fab);
 
         //Setup Recycler View
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        layoutManager = new LinearLayoutManager(this);
+        layoutManager = new StaggeredGridLayoutManager(2,1);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         adapter = new ProductsAdapter(this);
@@ -73,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Setup Realm
         this.realm = RealmController.with(this).getRealm();
+
 
     }
 
@@ -147,17 +171,22 @@ public class MainActivity extends AppCompatActivity {
         return links;
     }
 
-
     public void addProduct(String sharedUrl){
+
+        //Setup Validator
+        validator = new Validator(this);
+        validator.setValidationListener(this);
 
         //Inflate and setup dialog and dialog views
         inflater = MainActivity.this.getLayoutInflater();
         final View content = inflater.inflate(R.layout.edit_product, null);
-        final EditText editProductTitle = (EditText) content.findViewById(R.id.edit_product_title);
-        final EditText editProductPrice = (EditText) content.findViewById(R.id.edit_product_price);
-        final EditText editProductImage = (EditText) content.findViewById(R.id.edit_product_image);
-        final EditText editProductUrl = (EditText) content.findViewById(R.id.edit_product_url);
+        editProductTitle = (EditText) content.findViewById(R.id.edit_product_title);
+        editProductPrice = (EditText) content.findViewById(R.id.edit_product_price);
+        editProductImage = (EditText) content.findViewById(R.id.edit_product_image);
+        editProductUrl = (EditText) content.findViewById(R.id.edit_product_url);
         final Button buttonProductAnalyzeUrl = (Button) content.findViewById(R.id.button_product_analyze_url);
+        final Button buttonConfirm = (Button) content.findViewById(R.id.button_confirm);
+        final Button buttonCancel = (Button) content.findViewById(R.id.button_cancel);
 
         if (sharedUrl != null && !sharedUrl.isEmpty()) {
             editProductUrl.setText(sharedUrl);
@@ -166,44 +195,9 @@ public class MainActivity extends AppCompatActivity {
         //Create Dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setView(content)
-                .setTitle("Add product")
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                .setTitle("Add product");
 
-                        //Set data from textviews to Product Objects
-                        Product product = new Product();
-                        product.setId(RealmController.getInstance().getProducts().size() + (int) System.currentTimeMillis());
-                        product.setTitle(editProductTitle.getText().toString());
-                        product.setPrice(Float.parseFloat(editProductPrice.getText().toString()));
-                        product.setImageUrl(editProductImage.getText().toString());
-                        product.setBuyUrl(editProductUrl.getText().toString());
-
-                        if (editProductTitle.getText() == null || editProductTitle.getText().toString().equals("") || editProductTitle.getText().toString().equals(" ")) {
-                            Toast.makeText(MainActivity.this, "Entry not saved, missing title", Toast.LENGTH_SHORT).show();
-                        } else {
-
-                            //Put data in realm
-                            realm.beginTransaction();
-                            realm.copyToRealm(product);
-                            realm.commitTransaction();
-
-                            adapter.notifyDataSetChanged();
-
-                            //Scroll the recycler view to bottom
-                            recyclerView.scrollToPosition(RealmController.getInstance().getProducts().size() - 1);
-                        }
-                    }
-                })
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-
-        AlertDialog dialog = builder.create();
+        dialog = builder.create();
         dialog.show();
 
         //Parse data from the url
@@ -216,7 +210,73 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        buttonConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //Validate data and run onValidationSucceeded method, if data is valid
+                validator.validate();
+
+            }
+        });
+
+        buttonCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                dialog.dismiss();
+
+            }
+        });
     }
 
 
+    @Override
+    public void onValidationSucceeded() {
+        Toast.makeText(this, "Yay! we got it right!", Toast.LENGTH_SHORT).show();
+
+        //Set data from textviews to Product Objects
+        Product product = new Product();
+        product.setId(RealmController.getInstance().getProducts().size() + (int) System.currentTimeMillis());
+        product.setTitle(editProductTitle.getText().toString());
+        product.setPrice(Float.parseFloat(editProductPrice.getText().toString()));
+        product.setImageUrl(editProductImage.getText().toString());
+        product.setBuyUrl(editProductUrl.getText().toString());
+
+        //Put data in realm
+        realm.beginTransaction();
+        realm.copyToRealm(product);
+        realm.commitTransaction();
+
+        adapter.notifyDataSetChanged();
+
+        //Scroll the recycler view to bottom
+        recyclerView.scrollToPosition(RealmController.getInstance().getProducts().size() - 1);
+
+        dialog.dismiss();
+
+
+    }
+
+    @Override
+    public void onValidationFailed(List<ValidationError> errors) {
+        for (ValidationError error : errors) {
+            View view = error.getView();
+            String message = error.getCollatedErrorMessage(this);
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+
+            // Display error messages ;)
+            if (view instanceof EditText) {
+
+                //((EditText) view).setError(message);
+
+                //Get TextInputLayout, that is parent of edittext, and set error to him, so it has a better ui
+                TextInputLayout textInputLayout = (TextInputLayout) view.getParent();
+                textInputLayout.setError(message);
+            } else {
+                //Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
 }

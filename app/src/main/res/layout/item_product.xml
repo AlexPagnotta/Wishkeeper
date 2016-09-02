@@ -4,30 +4,34 @@
     android:id="@+id/card_products"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardUseCompatPadding="true">
+    android:layout_margin="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_margin="16dp">
 
         <ImageView
-            android:id="@+id/image_produts_background"
+            android:id="@+id/image_products_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|start" />
+            android:layout_gravity="center_vertical|start"
+            android:layout_marginBottom="16dp"/>
 
 
         <TextView
                 android:id="@+id/text_products_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#555555" />
+                android:textColor="#393939"
+            android:layout_marginBottom="3dp"/>
 
         <TextView
                 android:id="@+id/text_products_price"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorPrimary"/>
 
         <android.support.v7.widget.AppCompatButton
             android:layout_width="wrap_content"
@@ -46,6 +50,7 @@
             android:layout_height="wrap_content"
             android:text="Open"
             android:id="@+id/button_product_open"/>
+
 
 
     </LinearLayout>
