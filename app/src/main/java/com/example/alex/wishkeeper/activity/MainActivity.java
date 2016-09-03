@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
     @NotEmpty
      EditText editProductUrl;
 
+    TextInputLayout inputLayoutProductUrl;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -184,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
         editProductPrice = (EditText) content.findViewById(R.id.edit_product_price);
         editProductImage = (EditText) content.findViewById(R.id.edit_product_image);
         editProductUrl = (EditText) content.findViewById(R.id.edit_product_url);
+        inputLayoutProductUrl = (TextInputLayout) content.findViewById(R.id.input_layout_product_url);
         final Button buttonProductAnalyzeUrl = (Button) content.findViewById(R.id.button_product_analyze_url);
         final Button buttonConfirm = (Button) content.findViewById(R.id.button_confirm);
         final Button buttonCancel = (Button) content.findViewById(R.id.button_cancel);
@@ -205,8 +208,27 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
             @Override
             public void onClick(View v) {
 
-                String url=editProductUrl.getText().toString();
-                ( new ParseURL(content) ).execute(new String[]{url});
+
+
+                //Validate url, check if is empty and if it's a url in http://example.* format
+                if(editProductUrl.getText().toString().matches("")){
+                    inputLayoutProductUrl.setError("This field is required");
+                }
+                else{
+                    String URL_REGEX = "https?:\\/\\/(www\\.)[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)";
+                    Pattern p = Pattern.compile(URL_REGEX);
+                    Matcher m = p.matcher(editProductUrl.getText());//replace with string to compare
+                    if(m.find()) {
+
+                        String url=editProductUrl.getText().toString();
+                        ( new ParseURL(content) ).execute(new String[]{url});
+
+                    }
+                    else{
+                        inputLayoutProductUrl.setError("You need to enter a url");
+                    }
+                }
+
 
             }
         });

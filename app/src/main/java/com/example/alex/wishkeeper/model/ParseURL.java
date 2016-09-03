@@ -1,6 +1,7 @@
 package com.example.alex.wishkeeper.model;
 
 import android.os.AsyncTask;
+import android.support.design.widget.TextInputLayout;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -32,6 +33,7 @@ public class ParseURL extends AsyncTask<String, Void, ArrayList> {
 
     @Override
     protected ArrayList doInBackground(String... strings) {
+
 
         product = new ArrayList();
 
@@ -65,31 +67,36 @@ public class ParseURL extends AsyncTask<String, Void, ArrayList> {
         Element imgElement = url.select(imgSelector).first();
         Element priceElement = url.select(priceSelector).first();
 
-        title=url.title();
-
-        //Clean Image
-        ArrayList links = new ArrayList();
-        String regex = "\\(?\\b(https://|http://|www[.])[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]";
-        Pattern p = Pattern.compile(regex);
-        Matcher m = p.matcher(imgElement.attr("data-a-dynamic-image"));
-        while(m.find()) {
-            String urlStr = m.group();
-            if (urlStr.startsWith("(") && urlStr.endsWith(")")) {
-                urlStr = urlStr.substring(1, urlStr.length() - 1);
-            }
-            links.add(urlStr);
-
+        if(imgElement == null||priceElement == null){
+            Log.d("test","VUOTO");
         }
+        else {
+            title = url.title();
 
-        img=links.get(0).toString();
+            //Clean Image
+            ArrayList links = new ArrayList();
+            String regex = "\\(?\\b(https://|http://|www[.])[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]";
+            Pattern p = Pattern.compile(regex);
+            Matcher m = p.matcher(imgElement.attr("data-a-dynamic-image"));
+            while (m.find()) {
+                String urlStr = m.group();
+                if (urlStr.startsWith("(") && urlStr.endsWith(")")) {
+                    urlStr = urlStr.substring(1, urlStr.length() - 1);
+                }
+                links.add(urlStr);
 
-        //Clean Price
-        String split[] = priceElement.text().split(" ");
-        price = split[1].replace(",",".");
+            }
 
-        product.add(title);
-        product.add(price);
-        product.add(img);
+            img = links.get(0).toString();
+
+            //Clean Price
+            String split[] = priceElement.text().split(" ");
+            price = split[1].replace(",", ".");
+
+            product.add(title);
+            product.add(price);
+            product.add(img);
+        }
 
 
     }
@@ -102,15 +109,20 @@ public class ParseURL extends AsyncTask<String, Void, ArrayList> {
         Element imgElement = url.select(imgSelector).first();
         Element priceElement = url.select(priceSelector).first();
 
-        title= url.title();
+        if(imgElement == null||priceElement == null){
+            Log.d("test","VUOTO");
+        }
+        else {
+            title = url.title();
 
-        img= imgElement.attr("src"); //TODO: Find an image with a better resolution
+            img = imgElement.attr("src"); //TODO: Find an image with a better resolution
 
-        price= priceElement.attr("content");
+            price = priceElement.attr("content");
 
-        product.add(title);
-        product.add(price);
-        product.add(img);
+            product.add(title);
+            product.add(price);
+            product.add(img);
+        }
 
     }
 
@@ -122,17 +134,23 @@ public class ParseURL extends AsyncTask<String, Void, ArrayList> {
         Element imgElement = url.select(imgSelector).first();
         Element priceElement = url.select(priceSelector).first();
 
-        title= url.title();
+        if(imgElement == null||priceElement == null){
+            Log.d("test","VUOTO");
+        }
+        else {
 
-        img= imgElement.attr("content");
+            title = url.title();
 
-        //Clean Price
-        String split[] = priceElement.text().split(" ");
-        price = split[1].replace(",",".");
+            img = imgElement.attr("content");
 
-        product.add(title);
-        product.add(price);
-        product.add(img);
+            //Clean Price
+            String split[] = priceElement.text().split(" ");
+            price = split[1].replace(",", ".");
+
+            product.add(title);
+            product.add(price);
+            product.add(img);
+        }
 
     }
 
@@ -145,10 +163,17 @@ public class ParseURL extends AsyncTask<String, Void, ArrayList> {
         EditText editProductTitle = (EditText) content.findViewById(R.id.edit_product_title);
         EditText editProductPrice = (EditText) content.findViewById(R.id.edit_product_price);
         EditText editProductImage = (EditText) content.findViewById(R.id.edit_product_image);
+        TextInputLayout inputLayoutProductUrl = (TextInputLayout) content.findViewById(R.id.input_layout_product_url);
 
-        editProductTitle.setText(product.get(0).toString());
-        editProductPrice.setText(product.get(1).toString());
-        editProductImage.setText(product.get(2).toString());
+        if(!product.isEmpty()){
+            editProductTitle.setText(product.get(0).toString());
+            editProductPrice.setText(product.get(1).toString());
+            editProductImage.setText(product.get(2).toString());
+        }
+        else{
+            inputLayoutProductUrl.setError("The url is wrong, or the site is not yet compatible");
+        }
+
 
     }
 
