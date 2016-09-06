@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,9 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.example.alex.wishkeeper.R;
+import com.example.alex.wishkeeper.activity.DetailActivity;
+import com.example.alex.wishkeeper.activity.MainActivity;
 import com.example.alex.wishkeeper.model.ParseURL;
 import com.example.alex.wishkeeper.model.Product;
 import com.example.alex.wishkeeper.realm.RealmController;
@@ -55,8 +59,16 @@ public class ProductsAdapter extends RealmRecyclerViewAdapter<Product> {
                     .into(holder.imageProductsBackground);
         }
 
+        holder.card.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, DetailActivity.class);
+                intent.putExtra("productId", product.getId());
+                context.startActivity(intent);
+            }
+        });
 
-        holder.buttonProductRemove.setOnClickListener(new View.OnClickListener() {
+       holder.buttonProductRemove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -78,6 +90,7 @@ public class ProductsAdapter extends RealmRecyclerViewAdapter<Product> {
             @Override
             public void onClick(View v) {
 
+                //TODO: Add validation like in the AddProducts method
                 inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 final View content = inflater.inflate(R.layout.edit_product, null);
                 final EditText editProductTitle = (EditText) content.findViewById(R.id.edit_product_title);
@@ -166,9 +179,9 @@ public class ProductsAdapter extends RealmRecyclerViewAdapter<Product> {
         public TextView textProductsTitle;
         public TextView textProductsPrice;
         public ImageView imageProductsBackground;
-        public Button buttonProductEdit;
-        public Button buttonProductRemove;
-        public Button buttonProductOpen;
+        public ImageButton buttonProductEdit;
+        public ImageButton buttonProductRemove;
+        public ImageButton buttonProductOpen;
 
         public CardViewHolder(View itemView) {
 
@@ -178,14 +191,10 @@ public class ProductsAdapter extends RealmRecyclerViewAdapter<Product> {
             textProductsTitle = (TextView) itemView.findViewById(R.id.text_products_title);
             textProductsPrice = (TextView) itemView.findViewById(R.id.text_products_price);
             imageProductsBackground = (ImageView) itemView.findViewById(R.id.image_products_background);
-            buttonProductEdit= (Button) itemView.findViewById(R.id.button_product_edit);
-            buttonProductRemove= (Button) itemView.findViewById(R.id.button_product_remove);
-            buttonProductOpen= (Button) itemView.findViewById(R.id.button_product_open);
+            buttonProductEdit= (ImageButton) itemView.findViewById(R.id.button_product_edit);
+            buttonProductRemove= (ImageButton) itemView.findViewById(R.id.button_product_remove);
+            buttonProductOpen= (ImageButton) itemView.findViewById(R.id.button_product_open);
 
-            //TODO: Move these buttons in another activity
-            buttonProductEdit.setVisibility(View.GONE);
-            buttonProductRemove.setVisibility(View.GONE);
-            buttonProductOpen.setVisibility(View.GONE);
         }
     }
 }

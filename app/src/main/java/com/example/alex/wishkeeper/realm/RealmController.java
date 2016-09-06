@@ -74,7 +74,7 @@ public class RealmController {
     }
 
     //Query a single item with the given id
-    public Product getProductsById(String id) {
+    public Product getProductsById(int id) {
 
         return realm.where(Product.class).equalTo("id", id).findFirst();
     }

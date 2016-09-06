@@ -6,6 +6,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
 
     private Toolbar toolbar;
     private RecyclerView recyclerView;
-    private StaggeredGridLayoutManager layoutManager;
+    private GridLayoutManager layoutManager;
     private ProductsAdapter adapter;
     private Realm realm;
     private FloatingActionButton fab;
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
 
         //Setup Recycler View
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        layoutManager = new StaggeredGridLayoutManager(2,1);
+        layoutManager = new GridLayoutManager(this,2);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         adapter = new ProductsAdapter(this);
@@ -98,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
 
         //Setup Realm
         this.realm = RealmController.with(this).getRealm();
-
 
     }
 
