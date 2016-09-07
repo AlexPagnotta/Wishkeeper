@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_products"
@@ -8,10 +9,6 @@
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
     >
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -45,47 +42,5 @@
             />
 
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="3"
-        android:background="#efefef">
-
-        <ImageButton
-            android:id="@+id/button_product_open"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            style="?android:attr/borderlessButtonStyle"
-            android:src="@drawable/ic_open_link"
-            android:layout_gravity="center"
-            />
-
-        <ImageButton
-            android:id="@+id/button_product_edit"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            style="?android:attr/borderlessButtonStyle"
-            android:src="@drawable/ic_edit"
-            android:layout_gravity="center"
-            />
-
-        <ImageButton
-            android:id="@+id/button_product_remove"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            style="?android:attr/borderlessButtonStyle"
-            android:src="@drawable/ic_delete"
-            android:layout_gravity="center" />
-
-    </LinearLayout>
-
-    </LinearLayout>
-
-
 
 </android.support.v7.widget.CardView>

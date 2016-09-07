@@ -30,6 +30,29 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent" />
 
+        <android.support.v7.widget.AppCompatButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/borderlessButtonStyle"
+            android:textColor="@color/colorPrimary"
+            android:text="Edit"
+            android:id="@+id/button_product_edit" />
+
+        <android.support.v7.widget.AppCompatButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/borderlessButtonStyle"
+            android:textColor="@color/colorPrimary"
+            android:text="Remove"
+            android:id="@+id/button_product_remove" />
+
+        <android.support.v7.widget.AppCompatButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/borderlessButtonStyle"
+            android:textColor="@color/colorPrimary"
+            android:text="Open"
+            android:id="@+id/button_product_open" />
 
 
     </LinearLayout>

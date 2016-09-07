@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.app.Application;
 import android.support.v4.app.Fragment;
 import com.example.alex.wishkeeper.model.Product;
+
+import io.realm.Case;
 import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 
@@ -73,11 +76,6 @@ public class RealmController {
         return realm.where(Product.class).findAll();
     }
 
-    //Query a single item with the given id
-    public Product getProductsById(int id) {
-
-        return realm.where(Product.class).equalTo("id", id).findFirst();
-    }
 
     //Check if Product.class is empty
     public boolean hasProducts() {
@@ -85,6 +83,15 @@ public class RealmController {
         return !realm.where(Product.class).findAll().isEmpty();
 
     }
+
+    //Search products by name
+    public RealmResults<Product> searchProducts(String text) {
+
+        return realm.where(Product.class)
+                .contains("title", text, Case.INSENSITIVE)
+                .findAll();
+    }
+
 
     //Query example
     public RealmResults<Product> queryExample() {

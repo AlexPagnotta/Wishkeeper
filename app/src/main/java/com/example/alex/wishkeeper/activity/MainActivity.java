@@ -1,17 +1,21 @@
 package com.example.alex.wishkeeper.activity;
 
+import android.app.SearchManager;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -48,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
     private LayoutInflater inflater;
     private AlertDialog dialog;
     private Validator validator;
+    private SearchView searchView;
 
     @NotEmpty
      EditText editProductTitle;
@@ -69,12 +74,41 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
 
         setupViews();
 
-        manageClicks();
+        manageViews();
 
         manageIntents();
 
         setRealmAdapter(RealmController.with(this).getProducts());
 
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        //Search View
+        getMenuInflater().inflate(R.menu.main_activity_menu, menu);
+        // Retrieve the SearchView and plug it into SearchManager
+        searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+        //Need to stay here, doesn'twork in other methods
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                setRealmAdapter(RealmController.with(MainActivity.this).searchProducts(query));
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                setRealmAdapter(RealmController.with(MainActivity.this).searchProducts(newText));
+                return true;
+            }
+        });
+
+        return true;
 
     }
 
@@ -120,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
         adapter.notifyDataSetChanged();
     }
 
-    private void manageClicks(){
+    private void manageViews(){
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -130,6 +164,8 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
             }
 
         });
+
+
     }
 
     private void manageIntents(){
@@ -197,6 +233,7 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
 
         //Create Dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
         builder.setView(content)
                 .setTitle("Add product");
 
@@ -207,8 +244,6 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
         buttonProductAnalyzeUrl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
 
                 //Validate url, check if is empty and if it's a url in http://example.* format
                 if(editProductUrl.getText().toString().matches("")){
@@ -256,7 +291,6 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
 
     @Override
     public void onValidationSucceeded() {
-        Toast.makeText(this, "Yay! we got it right!", Toast.LENGTH_SHORT).show();
 
         //Set data from textviews to Product Objects
         Product product = new Product();
