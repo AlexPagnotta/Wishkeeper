@@ -39,23 +39,7 @@ import io.realm.RealmResults;
 public class ProductsAdapter extends RealmRecyclerViewAdapter<Product> {
 
     final Context context;
-    private Realm realm;
-    private LayoutInflater inflater;
-    private AlertDialog dialog;
-    private Validator validator;
 
-    @NotEmpty
-    EditText editProductTitle;
-    @NotEmpty
-    EditText editProductPrice ;
-    @Url
-    @NotEmpty
-    EditText editProductImage;
-    @Url
-    @NotEmpty
-    EditText editProductUrl;
-
-    TextInputLayout inputLayoutProductUrl;
 
     public ProductsAdapter(Context context) {
         this.context = context;
@@ -69,8 +53,6 @@ public class ProductsAdapter extends RealmRecyclerViewAdapter<Product> {
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, final int position) {
-
-        realm = RealmController.getInstance().getRealm();
 
         final Product product = getItem(position);
         final CardViewHolder holder = (CardViewHolder) viewHolder;

@@ -14,6 +14,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,16 +52,20 @@ public class DetailActivity extends AppCompatActivity implements Validator.Valid
     private AlertDialog dialog;
     private Validator validator;
 
+
     @NotEmpty
     EditText editProductTitle;
     @NotEmpty
     EditText editProductPrice ;
+    @NotEmpty
+    EditText editProductStore ;
     @Url
     @NotEmpty
     EditText editProductImage;
     @Url
     @NotEmpty
     EditText editProductUrl;
+    Spinner spCategory;
 
     TextInputLayout inputLayoutProductUrl;
 
@@ -127,15 +133,23 @@ public class DetailActivity extends AppCompatActivity implements Validator.Valid
             @Override
             public void onClick(View v) {
 
-                realm.beginTransaction();
+                new AlertDialog.Builder(DetailActivity.this)
+                        .setMessage("Do you really want to remove this product?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 
-                product.deleteFromRealm();
+                            public void onClick(DialogInterface dialog, int whichButton) {
 
-                realm.commitTransaction();
+                                realm.beginTransaction();
 
-                Intent intent = new Intent(DetailActivity.this, MainActivity.class);
-                startActivity(intent);
+                                product.deleteFromRealm();
 
+                                realm.commitTransaction();
+
+                                Intent intent = new Intent(DetailActivity.this, MainActivity.class);
+                                startActivity(intent);
+
+                            }})
+                        .setNegativeButton("No", null).show();
 
             }
         });
@@ -165,15 +179,28 @@ public class DetailActivity extends AppCompatActivity implements Validator.Valid
         final View content = inflater.inflate(R.layout.edit_product, null);
         editProductTitle = (EditText) content.findViewById(R.id.edit_product_title);
         editProductPrice = (EditText) content.findViewById(R.id.edit_product_price);
+        editProductStore = (EditText) content.findViewById(R.id.edit_product_store);
         editProductImage = (EditText) content.findViewById(R.id.edit_product_image);
         editProductUrl = (EditText) content.findViewById(R.id.edit_product_url);
         inputLayoutProductUrl = (TextInputLayout) content.findViewById(R.id.input_layout_product_url);
         final Button buttonProductAnalyzeUrl = (Button) content.findViewById(R.id.button_product_analyze_url);
         final Button buttonConfirm = (Button) content.findViewById(R.id.button_confirm);
         final Button buttonCancel = (Button) content.findViewById(R.id.button_cancel);
+        final RelativeLayout loadingCircle = (RelativeLayout) content.findViewById(R.id.loading_circle);
+        spCategory = (Spinner) content.findViewById(R.id.sp_category);
+
+        //Hide Loading Circle and show button
+        loadingCircle.setVisibility(View.GONE);
+        buttonProductAnalyzeUrl.setVisibility(View.VISIBLE);
 
         editProductTitle.setText(product.getTitle());
         editProductPrice.setText(String.valueOf(product.getPrice()));
+        editProductStore.setText(product.getStore());
+        for (int i=0;i<spCategory.getCount();i++){
+            if (spCategory.getItemAtPosition(i).equals(product.getCategory())){
+                spCategory.setSelection(i);
+            }
+        }
         editProductImage.setText(product.getImageUrl());
         editProductUrl.setText(product.getBuyUrl());
 
@@ -190,6 +217,10 @@ public class DetailActivity extends AppCompatActivity implements Validator.Valid
         buttonProductAnalyzeUrl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //Hide Loading Circle and show button
+                loadingCircle.setVisibility(View.VISIBLE);
+                buttonProductAnalyzeUrl.setVisibility(View.GONE);
 
                 //Validate url, check if is empty and if it's a url in http://example.* format
                 if(editProductUrl.getText().toString().matches("")){
@@ -243,6 +274,8 @@ public class DetailActivity extends AppCompatActivity implements Validator.Valid
 
         product.setTitle(editProductTitle.getText().toString());
         product.setPrice(Float.parseFloat(editProductPrice.getText().toString()));
+        product.setStore(editProductStore.getText().toString());
+        product.setCategory(String.valueOf(spCategory.getSelectedItem()));
         product.setImageUrl(editProductImage.getText().toString());
         product.setBuyUrl(editProductUrl.getText().toString());
 

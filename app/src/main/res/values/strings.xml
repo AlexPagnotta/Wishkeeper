@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">Wishkeeper</string>
+
+    <string name="categories_prompt">Select Category</string>
+
+    <string-array name="categories">
+        <item>No category</item>
+        <item>Movies, Music and Games</item>
+        <item>Books</item>
+        <item>Electronics  Computers</item>
+        <item>Home, Garden and Tools</item>
+        <item>Beauty, Health and Grocery</item>
+        <item>Toys, Kids and Baby</item>
+        <item>Clothing, Shoes and Jewelry</item>
+        <item>Sports and Outdoors</item>
+        <item>Automotive and Industrial</item>
+    </string-array>
+
 </resources>

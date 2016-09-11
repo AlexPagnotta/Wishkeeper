@@ -17,42 +17,56 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:orientation="horizontal"
-        android:layout_weight="1">
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:layout_margin="16dp">
 
         <TextView
             android:id="@+id/text_products_title"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:layout_marginBottom="10dp"/>
 
         <TextView
             android:id="@+id/text_products_price"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-
-        <android.support.v7.widget.AppCompatButton
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="?android:attr/borderlessButtonStyle"
+            android:textSize="16sp"
             android:textColor="@color/colorPrimary"
-            android:text="Edit"
-            android:id="@+id/button_product_edit" />
+            android:layout_marginBottom="16dp"/>
 
-        <android.support.v7.widget.AppCompatButton
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="?android:attr/borderlessButtonStyle"
-            android:textColor="@color/colorPrimary"
-            android:text="Remove"
-            android:id="@+id/button_product_remove" />
+            android:orientation="horizontal"
+            >
 
-        <android.support.v7.widget.AppCompatButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="?android:attr/borderlessButtonStyle"
-            android:textColor="@color/colorPrimary"
-            android:text="Open"
-            android:id="@+id/button_product_open" />
+            <android.support.v7.widget.AppCompatButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:attr/borderlessButtonStyle"
+                android:textColor="@color/colorPrimary"
+                android:text="Edit"
+                android:id="@+id/button_product_edit" />
+
+            <android.support.v7.widget.AppCompatButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:attr/borderlessButtonStyle"
+                android:textColor="@color/colorPrimary"
+                android:text="Remove"
+                android:id="@+id/button_product_remove" />
+
+            <android.support.v7.widget.AppCompatButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:attr/borderlessButtonStyle"
+                android:textColor="@color/colorPrimary"
+                android:text="Open"
+                android:id="@+id/button_product_open" />
+
+        </LinearLayout>
 
 
     </LinearLayout>

@@ -1,10 +1,14 @@
 package com.example.alex.wishkeeper.model;
 
+import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.support.design.widget.TextInputLayout;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
+
 import com.example.alex.wishkeeper.R;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -25,6 +29,7 @@ public class ParseURL extends AsyncTask<String, Void, ArrayList> {
     Document url;
     String title;
     String price;
+    String store;
     String img;
 
     public ParseURL(View content){
@@ -73,6 +78,8 @@ public class ParseURL extends AsyncTask<String, Void, ArrayList> {
         else {
             title = url.title();
 
+            store= "Amazon";
+
             //Clean Image
             ArrayList links = new ArrayList();
             String regex = "\\(?\\b(https://|http://|www[.])[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]";
@@ -95,6 +102,7 @@ public class ParseURL extends AsyncTask<String, Void, ArrayList> {
 
             product.add(title);
             product.add(price);
+            product.add(store);
             product.add(img);
         }
 
@@ -117,10 +125,13 @@ public class ParseURL extends AsyncTask<String, Void, ArrayList> {
 
             img = imgElement.attr("src"); //TODO: Find an image with a better resolution
 
+            store="Ebay";
+
             price = priceElement.attr("content");
 
             product.add(title);
             product.add(price);
+            product.add(store);
             product.add(img);
         }
 
@@ -143,12 +154,15 @@ public class ParseURL extends AsyncTask<String, Void, ArrayList> {
 
             img = imgElement.attr("content");
 
+            store="Zalando";
+
             //Clean Price
             String split[] = priceElement.text().split(" ");
             price = split[1].replace(",", ".");
 
             product.add(title);
             product.add(price);
+            product.add(store);
             product.add(img);
         }
 
@@ -162,13 +176,23 @@ public class ParseURL extends AsyncTask<String, Void, ArrayList> {
 
         EditText editProductTitle = (EditText) content.findViewById(R.id.edit_product_title);
         EditText editProductPrice = (EditText) content.findViewById(R.id.edit_product_price);
+        EditText editProductStore = (EditText) content.findViewById(R.id.edit_product_store);
         EditText editProductImage = (EditText) content.findViewById(R.id.edit_product_image);
         TextInputLayout inputLayoutProductUrl = (TextInputLayout) content.findViewById(R.id.input_layout_product_url);
+        RelativeLayout loadingCircle = (RelativeLayout) content.findViewById(R.id.loading_circle);
+        Button buttonProductAnalyzeUrl = (Button) content.findViewById(R.id.button_product_analyze_url);
+
+        //Hide Loading Circle and show button
+        loadingCircle.setVisibility(View.GONE);
+        buttonProductAnalyzeUrl.setVisibility(View.VISIBLE);
+
 
         if(!product.isEmpty()){
             editProductTitle.setText(product.get(0).toString());
             editProductPrice.setText(product.get(1).toString());
-            editProductImage.setText(product.get(2).toString());
+            editProductStore.setText(product.get(2).toString());
+            editProductImage.setText(product.get(3).toString());
+
         }
         else{
             inputLayoutProductUrl.setError("The url is wrong, or the site is not yet compatible");

@@ -4,11 +4,15 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -16,13 +20,17 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 import com.example.alex.wishkeeper.R;
+import com.example.alex.wishkeeper.adapters.NavDrawerAdapter;
 import com.example.alex.wishkeeper.adapters.ProductsAdapter;
 import com.example.alex.wishkeeper.adapters.RealmProductsAdapter;
 import com.example.alex.wishkeeper.model.ParseURL;
@@ -58,14 +66,28 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
      EditText editProductTitle;
     @NotEmpty
      EditText editProductPrice ;
+    @NotEmpty
+    EditText editProductStore ;
     @Url
     @NotEmpty
      EditText editProductImage;
     @Url
     @NotEmpty
      EditText editProductUrl;
+    Spinner spCategory;
 
     TextInputLayout inputLayoutProductUrl;
+    Button buttonProductAnalyzeUrl;
+    RelativeLayout loadingCircle;
+
+    private RecyclerView recyclerViewDrawer;
+    private RecyclerView.LayoutManager layoutManagerDrawer;
+    private NavDrawerAdapter adapterDrawer;
+    private DrawerLayout drawerLayout;
+    private boolean isDrawerOpened = false;
+
+    private String[] titles = {"Accessibility" , "Account" , "Backup" , "Rotation"};
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +101,18 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
         manageIntents();
 
         setRealmAdapter(RealmController.with(this).getProducts());
+
+        /*Sort Example
+
+        buttonTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                RealmResults<Product> products = realm.where(Product.class).findAllSorted("price");
+                setRealmAdapter(products);
+
+            }
+        });*/
 
 
     }
@@ -112,6 +146,21 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        if (item.getItemId() == android.R.id.home) {
+            if (isDrawerOpened)
+                drawerLayout.closeDrawers();
+            else
+                drawerLayout.openDrawer(GravityCompat.START);
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     private void setupViews(){
 
         //Setup Toolbar
@@ -119,6 +168,15 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         toolbar.setNavigationIcon(R.drawable.ic_menu);
+
+        //Setup Nav Drawer
+        recyclerViewDrawer = (RecyclerView) findViewById(R.id.recyclerViewDrawer);
+        layoutManagerDrawer = new LinearLayoutManager(this);
+        recyclerViewDrawer.setLayoutManager(layoutManagerDrawer);
+        adapterDrawer = new NavDrawerAdapter(titles);
+        recyclerViewDrawer.setAdapter(adapterDrawer);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
 
         //Setup Fab
         fab= (FloatingActionButton) findViewById(R.id.fab);
@@ -220,12 +278,21 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
         final View content = inflater.inflate(R.layout.edit_product, null);
         editProductTitle = (EditText) content.findViewById(R.id.edit_product_title);
         editProductPrice = (EditText) content.findViewById(R.id.edit_product_price);
+        editProductStore = (EditText) content.findViewById(R.id.edit_product_store);
         editProductImage = (EditText) content.findViewById(R.id.edit_product_image);
         editProductUrl = (EditText) content.findViewById(R.id.edit_product_url);
         inputLayoutProductUrl = (TextInputLayout) content.findViewById(R.id.input_layout_product_url);
-        final Button buttonProductAnalyzeUrl = (Button) content.findViewById(R.id.button_product_analyze_url);
+        buttonProductAnalyzeUrl = (Button) content.findViewById(R.id.button_product_analyze_url);
         final Button buttonConfirm = (Button) content.findViewById(R.id.button_confirm);
         final Button buttonCancel = (Button) content.findViewById(R.id.button_cancel);
+        loadingCircle = (RelativeLayout) content.findViewById(R.id.loading_circle);
+        spCategory = (Spinner) content.findViewById(R.id.sp_category);
+
+
+
+        //Hide Loading Circle and show button
+        loadingCircle.setVisibility(View.GONE);
+        buttonProductAnalyzeUrl.setVisibility(View.VISIBLE);
 
         if (sharedUrl != null && !sharedUrl.isEmpty()) {
             editProductUrl.setText(sharedUrl);
@@ -244,6 +311,10 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
         buttonProductAnalyzeUrl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //Hide Loading Circle and show button
+                loadingCircle.setVisibility(View.VISIBLE);
+                buttonProductAnalyzeUrl.setVisibility(View.GONE);
 
                 //Validate url, check if is empty and if it's a url in http://example.* format
                 if(editProductUrl.getText().toString().matches("")){
@@ -297,6 +368,8 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
         product.setId(RealmController.getInstance().getProducts().size() + (int) System.currentTimeMillis());
         product.setTitle(editProductTitle.getText().toString());
         product.setPrice(Float.parseFloat(editProductPrice.getText().toString()));
+        product.setStore(editProductStore.getText().toString());
+        product.setCategory(String.valueOf(spCategory.getSelectedItem()));
         product.setImageUrl(editProductImage.getText().toString());
         product.setBuyUrl(editProductUrl.getText().toString());
 
@@ -322,6 +395,7 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
             String message = error.getCollatedErrorMessage(this);
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 
+
             // Display error messages ;)
             if (view instanceof EditText) {
 
@@ -330,9 +404,16 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
                 //Get TextInputLayout, that is parent of edittext, and set error to him, so it has a better ui
                 TextInputLayout textInputLayout = (TextInputLayout) view.getParent();
                 textInputLayout.setError(message);
+
+                //TODO: BUG: if the url is not validated or empty, the spinner doesn't go away
+                //Hide Loading Circle and show button
+                loadingCircle.setVisibility(View.GONE);
+                buttonProductAnalyzeUrl.setVisibility(View.VISIBLE);
+
             } else {
                 //Toast.makeText(this, message, Toast.LENGTH_LONG).show();
             }
         }
     }
+
 }
