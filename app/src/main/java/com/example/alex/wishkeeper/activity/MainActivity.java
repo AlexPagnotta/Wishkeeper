@@ -7,7 +7,6 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,26 +14,26 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
+
 import com.example.alex.wishkeeper.R;
-import com.example.alex.wishkeeper.adapters.NavDrawerAdapter;
 import com.example.alex.wishkeeper.adapters.ProductsAdapter;
 import com.example.alex.wishkeeper.adapters.RealmProductsAdapter;
 import com.example.alex.wishkeeper.model.ParseURL;
 import com.example.alex.wishkeeper.model.Product;
+import com.example.alex.wishkeeper.navDrawer.NavDrawerChildObject;
+import com.example.alex.wishkeeper.navDrawer.NavDrawerExpandableAdapter;
+import com.example.alex.wishkeeper.navDrawer.NavDrawerParentObject;
 import com.example.alex.wishkeeper.realm.RealmController;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
@@ -42,12 +41,17 @@ import com.mobsandgeeks.saripaar.annotation.NotEmpty;
 import com.mobsandgeeks.saripaar.annotation.Url;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 public class MainActivity extends AppCompatActivity implements Validator.ValidationListener {
 
@@ -82,11 +86,22 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
 
     private RecyclerView recyclerViewDrawer;
     private RecyclerView.LayoutManager layoutManagerDrawer;
-    private NavDrawerAdapter adapterDrawer;
+    private NavDrawerExpandableAdapter adapterDrawer;
     private DrawerLayout drawerLayout;
     private boolean isDrawerOpened = false;
 
-    private String[] titles = {"Accessibility" , "Account" , "Backup" , "Rotation"};
+
+    /*NavDrawerChildObject childs = new NavDrawerChildObject("TEst1");
+    NavDrawerChildObject childs1 = new NavDrawerChildObject("TEst2");
+    NavDrawerChildObject childs2 = new NavDrawerChildObject("TEst3");
+    NavDrawerChildObject childs3 = new NavDrawerChildObject("TEst4");
+
+    NavDrawerParentObject parent1 = new NavDrawerParentObject("parent1", Arrays.asList(childs,childs1));
+    NavDrawerParentObject parent2 = new NavDrawerParentObject("parent2", Arrays.asList(childs2,childs3));
+
+    List<NavDrawerParentObject> parents = Arrays.asList(parent1,parent2);*/
+
+    List<NavDrawerParentObject> parents;
 
 
     @Override
@@ -94,7 +109,12 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Start Realm
+        this.realm = RealmController.with(this).getRealm();
+
         setupViews();
+
+        setupNavDrawer();
 
         manageViews();
 
@@ -102,19 +122,66 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
 
         setRealmAdapter(RealmController.with(this).getProducts());
 
-        /*Sort Example
+    }
 
-        buttonTest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+    private void setupNavDrawer(){
 
-                RealmResults<Product> products = realm.where(Product.class).findAllSorted("price");
-                setRealmAdapter(products);
+        //Initializa objects and arrays
+        List<NavDrawerChildObject> categories = new ArrayList<NavDrawerChildObject>();
+        List<NavDrawerChildObject> stores = new ArrayList<NavDrawerChildObject>();
+        RealmResults<Product> products = realm.where(Product.class).findAll();
+        ArrayList<String> array = new ArrayList<String>();
+        Set<String> arrayTEMP = new LinkedHashSet<>();
 
-            }
-        });*/
+        //loop trough the products, and put categories in the array
+        products.sort("category", Sort.ASCENDING);
+        for(int i = 0; i < products.size(); i++)
+        {
+            array.add(products.get(i).getCategory());
+        }
 
+        //Remove duplicates in the array
+        arrayTEMP.addAll(array);
+        array.clear();
+        array.addAll(arrayTEMP);
 
+        //add every array item in the child object
+        for(int i = 0; i < array.size(); i++)
+        {
+            NavDrawerChildObject child= new NavDrawerChildObject(array.get(i));
+            categories.add(child);
+        }
+
+        array.clear();
+        arrayTEMP.clear();
+
+        //loop trough the products, and put stores in the array
+        products.sort("store", Sort.ASCENDING);
+        for(int i = 0; i < products.size(); i++)
+        {
+            array.add(products.get(i).getStore());
+        }
+
+        //Remove duplicates in the array
+        arrayTEMP.addAll(array);
+        array.clear();
+        array.addAll(arrayTEMP);
+
+        //add every array item in the child object
+        for(int i = 0; i < array.size(); i++)
+        {
+            NavDrawerChildObject child= new NavDrawerChildObject(array.get(i));
+            stores.add(child);
+        }
+
+        //Put child objects in  the two parents objects, join them in a single list
+        NavDrawerParentObject parent1 = new NavDrawerParentObject("Categories", categories);
+        NavDrawerParentObject parent2 = new NavDrawerParentObject("Stores", stores);
+        parents = Arrays.asList(parent1,parent2);
+
+        //Set the adapter to the recycler view in the drawer
+        adapterDrawer = new NavDrawerExpandableAdapter(this, parents);
+        recyclerViewDrawer.setAdapter(adapterDrawer);
     }
 
     @Override
@@ -173,10 +240,7 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
         recyclerViewDrawer = (RecyclerView) findViewById(R.id.recyclerViewDrawer);
         layoutManagerDrawer = new LinearLayoutManager(this);
         recyclerViewDrawer.setLayoutManager(layoutManagerDrawer);
-        adapterDrawer = new NavDrawerAdapter(titles);
-        recyclerViewDrawer.setAdapter(adapterDrawer);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
 
         //Setup Fab
         fab= (FloatingActionButton) findViewById(R.id.fab);
@@ -188,9 +252,6 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
         recyclerView.setHasFixedSize(true);
         adapter = new ProductsAdapter(this);
         recyclerView.setAdapter(adapter);
-
-        //Setup Realm
-        this.realm = RealmController.with(this).getRealm();
 
     }
 
@@ -213,6 +274,7 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
     }
 
     private void manageViews(){
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -379,6 +441,7 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
         realm.commitTransaction();
 
         adapter.notifyDataSetChanged();
+        setupNavDrawer();
 
         //Scroll the recycler view to bottom
         recyclerView.scrollToPosition(RealmController.getInstance().getProducts().size() - 1);

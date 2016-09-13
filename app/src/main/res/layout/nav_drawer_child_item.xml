@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:id="@+id/layout_child_item"
     android:background="?android:attr/activatedBackgroundIndicator"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:padding="10dp"
@@ -9,22 +10,14 @@
     android:clickable="true">
 
     <TextView
-        android:id="@+id/text_parent_item"
+        android:id="@+id/text_child_item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:paddingRight="10dp"
-        android:text="Item Name"
-        android:textColor="@android:color/black"
+        android:paddingLeft="15dp"
+        android:textColor="#606060"
         android:textAppearance="?android:attr/textAppearanceListItemSmall"
         />
 
-    <ImageView
-        android:id="@+id/image_arrow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_arrow_drop_down"
-        android:layout_alignParentRight="true"
-        />
 
 </RelativeLayout>
