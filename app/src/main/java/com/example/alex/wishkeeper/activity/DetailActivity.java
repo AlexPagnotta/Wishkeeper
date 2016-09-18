@@ -108,7 +108,8 @@ public class DetailActivity extends AppCompatActivity implements Validator.Valid
         Product product = realm.where(Product.class).equalTo("id", productId).findFirst();
 
         textProductsTitle.setText(product.getTitle());
-        textProductsPrice.setText(String.valueOf(product.getPrice()+" €"));
+        //.format locale %.21 ecc. is used to display number with two decimal position ex. 20.00
+        textProductsPrice.setText(String.format(java.util.Locale.US,"%.2f", product.getPrice())+" €");
 
         if (product.getImageUrl() != null) {
             Picasso.with(this)

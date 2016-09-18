@@ -58,7 +58,8 @@ public class ProductsAdapter extends RealmRecyclerViewAdapter<Product> {
         final CardViewHolder holder = (CardViewHolder) viewHolder;
 
         holder.textProductsTitle.setText(product.getTitle());
-        holder.textProductsPrice.setText(String.valueOf(product.getPrice()+" €"));
+        //.format locale %.21 ecc. is used to display number with two decimal position ex. 20.00
+        holder.textProductsPrice.setText(String.format(java.util.Locale.US,"%.2f", product.getPrice())+" €");
 
         if (product.getImageUrl() != null) {
             Picasso.with(context)

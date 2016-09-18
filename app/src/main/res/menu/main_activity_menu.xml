@@ -3,6 +3,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item android:id="@+id/action_filter"
+        android:title="Filter"
+        android:icon="@drawable/ic_filter_list"
+        app:showAsAction="ifRoom" />
+
     <!--Needed for the  search functionality of the toolbar-->
     <item android:id="@+id/action_search"
         android:title="Search"
