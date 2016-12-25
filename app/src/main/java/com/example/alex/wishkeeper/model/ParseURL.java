@@ -140,7 +140,7 @@ public class ParseURL extends AsyncTask<String, Void, ArrayList> {
     private void cleanZalandoData(){
 
         imgSelector = "[name=twitter:image]";
-        priceSelector = "#articlePrice";
+        priceSelector = ".zvui_price_priceWrapper";
 
         Element imgElement = url.select(imgSelector).first();
         Element priceElement = url.select(priceSelector).first();
@@ -156,9 +156,9 @@ public class ParseURL extends AsyncTask<String, Void, ArrayList> {
 
             store="Zalando";
 
-            //Clean Price
-            String split[] = priceElement.text().split(" ");
-            price = split[1].replace(",", ".");
+            String split[] = priceElement.text().split("\\s+");
+            Log.d("prezzo",split[1]);
+            price = split[0].replace(",", ".");
 
             product.add(title);
             product.add(price);

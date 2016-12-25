@@ -4,9 +4,11 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,7 +27,6 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
-
 import com.example.alex.wishkeeper.R;
 import com.example.alex.wishkeeper.adapters.ProductsAdapter;
 import com.example.alex.wishkeeper.adapters.RealmProductsAdapter;
@@ -36,7 +37,6 @@ import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
 import com.mobsandgeeks.saripaar.annotation.Url;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -198,6 +198,8 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
         String action = intent.getAction();
         String type = intent.getType();
 
+        Log.d("action","" + action);
+        Log.d("actiontype","" + type);
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
 
@@ -209,45 +211,50 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
             addProduct(sharedUrl);
         }
 
-        else if(action == null && type!=null){
-            //Handle intents from this app with extra attached
+        else if(action == null && type==null){
+            //Handle intents from this app
 
             //Get Intent from filter Activity, and sort products by the data passed
             String filterValue = getIntent().getStringExtra("filterValue");
             String filterType = getIntent().getStringExtra("filterType");
 
-            switch (filterType) {
-                case "category":
-                    setRealmAdapter(realm.where(Product.class).contains("category",filterValue).findAll());
-                    break;
-                case "store":
-                    setRealmAdapter(realm.where(Product.class).contains("store",filterValue).findAll());
-                    break;
-                case "sort":
+            if(filterType==null||filterType==null){
 
-                    switch (filterValue) {
-                        case "Name (Ascendent)":
-                            setRealmAdapter(realm.where(Product.class).findAllSorted("title",Sort.ASCENDING));
-                            break;
-                        case "Name (Descendent)":
-                            setRealmAdapter(realm.where(Product.class).findAllSorted("title",Sort.DESCENDING));
-                            break;
-                        case "Price (Ascendent)":
-                            setRealmAdapter(realm.where(Product.class).findAllSorted("price",Sort.ASCENDING));
-                            break;
-                        case "Price (Descendent)":
-                            setRealmAdapter(realm.where(Product.class).findAllSorted("price",Sort.DESCENDING));
-                            break;
-                    }
-
-                    break;
             }
+            else{
+                switch (filterType) {
+                    case "category":
+                        setRealmAdapter(realm.where(Product.class).contains("category",filterValue).findAll());
+                        break;
+                    case "store":
+                        setRealmAdapter(realm.where(Product.class).contains("store",filterValue).findAll());
+                        break;
+                    case "sort":
+
+                        switch (filterValue) {
+                            case "Name (Ascendent)":
+                                setRealmAdapter(realm.where(Product.class).findAllSorted("title",Sort.ASCENDING));
+                                break;
+                            case "Name (Descendent)":
+                                setRealmAdapter(realm.where(Product.class).findAllSorted("title",Sort.DESCENDING));
+                                break;
+                            case "Price (Ascendent)":
+                                setRealmAdapter(realm.where(Product.class).findAllSorted("price",Sort.ASCENDING));
+                                break;
+                            case "Price (Descendent)":
+                                setRealmAdapter(realm.where(Product.class).findAllSorted("price",Sort.DESCENDING));
+                                break;
+                        }
+
+                        break;
+                }
+            }
+
 
         }
         else{
-            //Handle intents from this app without extra attached
-        }
 
+        }
     }
 
     private ArrayList extractLink(String sharedText) {
@@ -388,13 +395,12 @@ public class MainActivity extends AppCompatActivity implements Validator.Validat
 
 
     }
-
-    @Override
-    public void onValidationFailed(List<ValidationError> errors) {
-        for (ValidationError error : errors) {
-            View view = error.getView();
-            String message = error.getCollatedErrorMessage(this);
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            @Override
+            public void onValidationFailed(List<ValidationError> errors) {
+                for (ValidationError error : errors) {
+                    View view = error.getView();
+                    String message = error.getCollatedErrorMessage(this);
+                    Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 
 
             // Display error messages ;)

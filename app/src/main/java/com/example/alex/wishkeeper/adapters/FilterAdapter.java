@@ -55,6 +55,8 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.CardViewHo
                 extras.putString("filterValue", holder.textFilter.getText().toString());
                 extras.putString("filterType", type);
                 intent.putExtras(extras);
+                Log.d("ghghg",type);
+                Log.d("ghghg",holder.textFilter.getText().toString());
                 context.startActivity(intent);
             }
         });
