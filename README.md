@@ -13,4 +13,4 @@ Desplash includes the following features:
 <img src="http://i.imgur.com/wJRHdpj.png" width="360" heigth="640">
 <img src="http://i.imgur.com/MotZFHh.png" width="360" heigth="640">
 
-#Developed by Alex Pagnotta
+# Developed by Alex Pagnotta
