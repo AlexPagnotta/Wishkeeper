@@ -9,8 +9,8 @@ Desplash includes the following features:
 
 [Download WishKeeper apk](https://github.com/AlexPagnotta/Wishkeeper/raw/master/Wishkeeper.apk)
 
-<img src="http://i.imgur.com/5W6LdPS.png" width="360" heigth="640">
-<img src="http://i.imgur.com/wJRHdpj.png" width="360" heigth="640">
-<img src="http://i.imgur.com/MotZFHh.png" width="360" heigth="640">
+<img src="https://drive.google.com/uc?export=view&id=1IBMTgC0rhUssHoQQjcFfQ-Oczy892NF6" width="360" heigth="640">
+<img src="https://drive.google.com/uc?export=view&id=1OLIszT17tWeePwSUeYFhAu8FtUhAQ2Ou" width="360" heigth="640">
+<img src="https://drive.google.com/uc?export=view&id=1ZhFvpi3TuDmxBvjnG3IQPeL4I0Noa-Wv" width="360" heigth="640">
 
 # Developed by Alex Pagnotta
